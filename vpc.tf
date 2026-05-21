@@ -7,10 +7,19 @@ resource "aws_vpc" "new-ec2-vpc" {
 
 resource "aws_subnet" "myapp-subnet-1" {
   vpc_id            = aws_vpc.new-ec2-vpc.id
-  cidr_block        = var.subnet_cidr_block
-  availability_zone = var.avail_zone
+  cidr_block        = var.subnet_cidr_block1
+  availability_zone = var.avail_zone1
   tags = {
     Name = "${var.env_prefix}-subnet-1"
+  }
+}
+
+resource "aws_subnet" "myapp-subnet-2" {
+  vpc_id            = aws_vpc.new-ec2-vpc.id
+  cidr_block        = var.subnet_cidr_block2
+  availability_zone = var.avail_zone2
+  tags = {
+    Name = "${var.env_prefix}-subnet-2"
   }
 }
 
@@ -32,28 +41,14 @@ resource "aws_default_route_table" "main-rtb" {
   }
 }
 
-resource "aws_default_security_group" "default-sg" {
-  vpc_id = aws_vpc.new-ec2-vpc.id
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-   ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  tags = {
-    Name = "${var.env_prefix}-default-sg"
-  }
+# Associate Public Route Table with Public Subnet 1
+resource "aws_route_table_association" "public_assoc_1" {
+  subnet_id      = aws_subnet.myapp-subnet-1.id
+  route_table_id = aws_default_route_table.main-rtb.id
+}
+
+# Associate Public Route Table with Public Subnet 2
+resource "aws_route_table_association" "public_assoc_2" {
+  subnet_id      = aws_subnet.myapp-subnet-2.id
+  route_table_id = aws_default_route_table.main-rtb.id
 }
