@@ -23,6 +23,16 @@ resource "aws_subnet" "myapp-subnet-2" {
   }
 }
 
+resource "aws_subnet" "myapp-subnet-3" {
+  vpc_id            = aws_vpc.new-ec2-vpc.id
+  cidr_block        = var.subnet_cidr_block3
+  availability_zone = var.avail_zone3
+  tags = {
+    Name = "${var.env_prefix}-subnet-3"
+  }
+}
+
+
 resource "aws_internet_gateway" "myapp-igw" {
   vpc_id = aws_vpc.new-ec2-vpc.id
   tags = {
@@ -50,5 +60,11 @@ resource "aws_route_table_association" "public_assoc_1" {
 # Associate Public Route Table with Public Subnet 2
 resource "aws_route_table_association" "public_assoc_2" {
   subnet_id      = aws_subnet.myapp-subnet-2.id
+  route_table_id = aws_default_route_table.main-rtb.id
+}
+
+# Associate Public Route Table with Public Subnet 3
+resource "aws_route_table_association" "public_assoc_3" {
+  subnet_id      = aws_subnet.myapp-subnet-3.id
   route_table_id = aws_default_route_table.main-rtb.id
 }
